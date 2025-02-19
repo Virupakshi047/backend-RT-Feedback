@@ -1,0 +1,118 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model admin {
+  id         Int          @id @default(autoincrement())
+  name       String
+  email      String       @unique(map: "Admin_email_key")
+  password   String
+  createdAt  DateTime     @default(now())
+  rtapproval rtapproval[]
+}
+
+model employee {
+  id              Int               @id @default(autoincrement())
+  name            String
+  email           String            @unique(map: "Employee_email_key")
+  password        String
+  bandLevel       String
+  managerId       Int?
+  employee        employee?         @relation("employeeToemployee", fields: [managerId], references: [id], map: "Employee_managerId_fkey")
+  other_employee  employee[]        @relation("employeeToemployee")
+  monthlyfeedback monthlyfeedback[]
+  rtsubmission    rtsubmission[]
+
+  @@index([managerId], map: "Employee_managerId_fkey")
+}
+
+model feedbackparameter {
+  id            Int             @id @default(autoincrement())
+  paramName     String
+  bandLevel     String
+  isActive      Boolean         @default(true)
+  feedbackscore feedbackscore[]
+}
+
+model feedbackscore {
+  id                Int               @id @default(autoincrement())
+  feedbackId        Int
+  paramId           Int
+  score             Float
+  comments          String?
+  monthlyfeedback   monthlyfeedback   @relation(fields: [feedbackId], references: [id], map: "FeedbackScore_feedbackId_fkey")
+  feedbackparameter feedbackparameter @relation(fields: [paramId], references: [id], map: "FeedbackScore_paramId_fkey")
+
+  @@index([feedbackId], map: "FeedbackScore_feedbackId_fkey")
+  @@index([paramId], map: "FeedbackScore_paramId_fkey")
+}
+
+model monthlyfeedback {
+  id             Int             @id @default(autoincrement())
+  empId          Int
+  feedbackMonth  String
+  attachmentUrl  String?
+  submissionDate DateTime        @default(now())
+  isSubmitted    Boolean         @default(false)
+  feedbackscore  feedbackscore[]
+  employee       employee        @relation(fields: [empId], references: [id], map: "MonthlyFeedback_empId_fkey")
+
+  @@index([empId], map: "MonthlyFeedback_empId_fkey")
+}
+
+model rtapproval {
+  id             Int                       @id @default(autoincrement())
+  rtSubmissionId Int
+  adminId        Int
+  approvalStatus rtapproval_approvalStatus @default(PENDING)
+  comments       String?
+  approvedAt     DateTime                  @default(now())
+  admin          admin                     @relation(fields: [adminId], references: [id], map: "RTApproval_adminId_fkey")
+  rtsubmission   rtsubmission              @relation(fields: [rtSubmissionId], references: [id], map: "RTApproval_rtSubmissionId_fkey")
+
+  @@index([adminId], map: "RTApproval_adminId_fkey")
+  @@index([rtSubmissionId], map: "RTApproval_rtSubmissionId_fkey")
+}
+
+model rtcycle {
+  id           Int            @id @default(autoincrement())
+  startDate    DateTime
+  endDate      DateTime
+  status       rtcycle_status @default(ACTIVE)
+  rtsubmission rtsubmission[]
+}
+
+model rtsubmission {
+  id                 Int          @id @default(autoincrement())
+  cycleId            Int
+  empId              Int
+  additionalComments String?
+  calculatedScore    Float
+  finalGrade         String?
+  adminOverrideScore Float?
+  adminComments      String?
+  isApproved         Boolean      @default(false)
+  submissionDate     DateTime     @default(now())
+  rtapproval         rtapproval[]
+  rtcycle            rtcycle      @relation(fields: [cycleId], references: [id], map: "RTSubmission_cycleId_fkey")
+  employee           employee     @relation(fields: [empId], references: [id], map: "RTSubmission_empId_fkey")
+
+  @@index([cycleId], map: "RTSubmission_cycleId_fkey")
+  @@index([empId], map: "RTSubmission_empId_fkey")
+}
+
+enum rtapproval_approvalStatus {
+  APPROVED
+  REJECTED
+  PENDING
+}
+
+enum rtcycle_status {
+  ACTIVE
+  COMPLETED
+}
