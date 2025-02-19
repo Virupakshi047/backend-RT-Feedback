@@ -30,4 +30,8 @@ export class FeedbackController {
   deleteFeedback(@Param('id') id: string) {
     return this.feedbackService.deleteFeedback(Number(id));
   }
+  @Get('forms/config/:empId')
+  async getFormConfig(@Param('empId') empId: string) {
+    return this.feedbackService.getFormConfig(Number(empId));
+  }
 }

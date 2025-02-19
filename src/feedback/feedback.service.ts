@@ -25,4 +25,28 @@ export class FeedbackService {
   async deleteFeedback(id: number): Promise<monthlyfeedback> {
     return this.prisma.monthlyfeedback.delete({ where: { id } });
   }
+
+  async getFormConfig(empId:number){
+    const employee = await this.prisma.employee.findUnique({
+      where:{id:empId},
+      select:{bandLevel:true},
+    });
+    if(!employee){
+      throw new Error('Employee not found');
+    }
+    const parameters = await this.prisma.feedbackparameter.findMany({
+      where: { bandLevel: employee.bandLevel, isActive: true },
+      select: { id: true, paramName: true },
+    });
+    return {
+      bandLevel: employee.bandLevel,
+      fields: parameters.map((param) => ({
+        id: param.id,
+        name: param.paramName,
+        type: 'rating',
+        maxScore: 10,
+      })),
+    };
+  }
+
 }
