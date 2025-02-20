@@ -1,4 +1,4 @@
-import { Controller, Get, Param, Post, Body, Put, Delete } from '@nestjs/common';
+import { Controller, Get, Param, Post, Body, Put, Delete, BadRequestException } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { employee } from '@prisma/client';
 
@@ -19,6 +19,14 @@ export class EmployeesController {
   @Post()
   createEmployee(@Body() data: { name: string; email: string; password: string; bandLevel: string; managerId?: number }) {
     return this.employeesService.createEmployee(data);
+  }
+  @Post('login')
+  async loginEmployee(@Body() data: { email: string; password: string }) {
+    try {
+      return await this.employeesService.loginEmployee(data.email, data.password);
+    } catch (error) {
+      throw new BadRequestException(error.message);
+    }
   }
 
   @Put(':id')
