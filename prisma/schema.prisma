@@ -63,6 +63,7 @@ model monthlyfeedback {
   employee       employee        @relation(fields: [empId], references: [id], map: "MonthlyFeedback_empId_fkey")
 
   @@index([empId], map: "MonthlyFeedback_empId_fkey")
+  @@unique([empId, feedbackMonth]) 
 }
 
 model rtapproval {
@@ -101,6 +102,7 @@ model rtsubmission {
   rtapproval         rtapproval[]
   rtcycle            rtcycle      @relation(fields: [cycleId], references: [id], map: "RTSubmission_cycleId_fkey")
   employee           employee     @relation(fields: [empId], references: [id], map: "RTSubmission_empId_fkey")
+  isEligibleForSubmission Boolean @default(false)
 
   @@index([cycleId], map: "RTSubmission_cycleId_fkey")
   @@index([empId], map: "RTSubmission_empId_fkey")

@@ -17,9 +17,10 @@ export class FeedbackController {
   }
 
   @Post()
-  createFeedback(@Body() data: { empId: number; feedbackMonth: string; attachmentUrl?: string; isSubmitted?: boolean }) {
-    return this.feedbackService.createFeedback(data);
+  createFeedback(@Body() data: { empId: number; feedbackMonth: string; parameters: any[] }) {
+    return this.feedbackService.submitMonthlyFeedback(data.empId, data.feedbackMonth, data);
   }
+  
 
   @Put(':id')
   updateFeedback(@Param('id') id: string, @Body() data: Partial<monthlyfeedback>) {
