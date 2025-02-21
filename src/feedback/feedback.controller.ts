@@ -10,12 +10,6 @@ export class FeedbackController {
   getAllFeedback() {
     return this.feedbackService.getAllFeedback();
   }
-
-  @Get(':id')
-  getFeedbackById(@Param('id') id: string) {
-    return this.feedbackService.getFeedbackById(Number(id));
-  }
-
   @Post()
   createFeedback(@Body() data: { empId: number; feedbackMonth: string; parameters: any[] }) {
     return this.feedbackService.submitMonthlyFeedback(data.empId, data.feedbackMonth, data);
@@ -34,5 +28,9 @@ export class FeedbackController {
   @Get('forms/config/:empId')
   async getFormConfig(@Param('empId') empId: string) {
     return this.feedbackService.getFormConfig(Number(empId));
+  }
+  @Get(':empId')
+  async getMonthlyFeedback(@Param('empId') empId: string) {
+    return this.feedbackService.getMonthlyFeedback(Number(empId));
   }
 }

@@ -90,9 +90,36 @@ export class FeedbackService {
         });
       })
     );
-    
+
   
     return { feedbackEntry, message: 'Feedback submitted successfully!' };
+  }
+
+  async getMonthlyFeedback(empId: number) {
+    const feedbacks = await this.prisma.monthlyfeedback.findMany({
+      where: { empId },
+      include: {
+        feedbackscore: {
+          include: {
+            feedbackparameter: true, // Fetch parameter details
+          },
+        },
+      },
+      orderBy: { feedbackMonth: 'asc' },
+    });
+
+    return {
+      empId,
+      monthlyFeedbacks: feedbacks.map((feedback) => ({
+        id: feedback.id,
+        feedbackMonth: feedback.feedbackMonth,
+        scores: feedback.feedbackscore.map((score) => ({
+          name: score.feedbackparameter.paramName,
+          score: score.score,
+          comments: score.comments,
+        })),
+      })),
+    };
   }
 
 }
