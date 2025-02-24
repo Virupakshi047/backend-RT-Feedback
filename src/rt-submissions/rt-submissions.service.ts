@@ -70,19 +70,7 @@ export class RTSubmissionsService {
   //  Submit RT Feedback
   async submitRTFeedback(empId: number, cycleId: number, additionalComments: string) {
     // Check if employee has 75% feedback for the cycle
-    const cycle = await this.prisma.rtcycle.findUnique({ where: { id: cycleId } });
-    const feedbackCount = await this.prisma.monthlyfeedback.count({ where: { empId, feedbackMonth: { contains: cycleId.toString() } } });
-
-    if (!cycle) {
-      throw new Error('Cycle not found');
-    }
-    const totalMonths = (new Date(cycle.endDate).getMonth() - new Date(cycle.startDate).getMonth()) + 1;
-    const requiredFeedbacks = Math.ceil(totalMonths * 0.75);
-
-    if (feedbackCount < requiredFeedbacks) {
-      throw new Error(`Minimum ${requiredFeedbacks} feedbacks required, you have ${feedbackCount}`);
-    }
-
+    // yet to be done 
     // Create RT Submission
     return this.prisma.rtsubmission.create({
       data: {
